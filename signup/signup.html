@@ -1,0 +1,308 @@
+<html>  
+	<head>
+			<meta charset="utf-8">
+			<meta http-equiv="x-ua-compatible" content="ie=edge">
+			<title>Widasa </title>
+			<meta name="description" content="">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<link rel="shortcut icon" type="image/x-icon" href="../assets/images/icon.jpg">
+			
+			 <script src="../assets/jquery/jqueryV2.2.0.min.js"></script>  
+			 
+			<link rel="stylesheet" href="../assets/mdbootstrap/css/bootstrap.css">         <!--bootstrap4 hear-->
+			<link rel="stylesheet" href="../assets/mdbootstrap/css/bootstrap.min.css">
+			<script type="text/javascript" src="../assets/mdbootstrap/js/bootstrap.js"></script>	
+			<script type="text/javascript" src="../assets/mdbootstrap/js/bootstrap.min.js"></script>
+
+		  
+			<link rel="stylesheet" href="../assets/mdbootstrap/css/mdb.css"> 
+			<link rel="stylesheet" href="../assets/mdbootstrap/css/mdb.min.css">
+			<link rel="stylesheet" href="../assets/mdbootstrap/css/mdb.lite.css">
+			<link rel="stylesheet" href="../assets/mdbootstrap/css/mdb.lite.min.css">
+			
+			<script type="text/javascript" src="../assets/mdbootstrap/js/mdb.js"></script>			<!--mdb hear(custom library)-->
+			<script type="text/javascript" src="../assets/mdbootstrap/js/mdb.min.js"></script>
+			<script type="text/javascript" src="../assets/mdbootstrap/js/popper.js"></script>
+			<script type="text/javascript" src="../assets/mdbootstrap/js/popper.min.js"></script>
+			
+				<script src="../assets/js/croppie.js"></script>
+				<link rel="stylesheet" href="../assets/css/croppie.css" />
+
+    </head>  
+    <body>  
+		
+<!--top bar-->
+	
+	<div class="container marginlogin">
+		<div class="row">
+		
+				<div class="col-md-6">
+					<a href="../index.php"><img src="../assets/images/logo.png" class="login_logo"></a>
+				</div>
+				<div class="col-md-6"><h2>
+					 <span class="d-none d-sm-inline alreadytxt">Already have an account?</span>
+					  <a href="../login.html" style="color:#37a000">Login</a></h2>	
+				</div>
+			
+		</div>
+	</div>
+        <form action="signup.php" method="POST" enctype="multipart/form-data">
+<div class="container-fluid"  style="background:linear-gradient(160deg, #50e2ed 0%, #1fc8db 51%, #2cb5e8 75%);padding-bottom:10;">
+<div class="row">
+	<div class="col-md-2"></div>
+		<div class="col-md-8 col-xs-12">
+			
+		<div class="card" style="margin-top:5%; margin-bottom:0;">
+
+			<h5 class="card-header info-color white-text text-center py-4">
+				<strong>Sign up</strong>
+			</h5>
+				<center>
+				<div class="col-lg-4 col-md-6">
+					<form class="md-form" action="upload.php" method="POST" enctype="multipart/form-data">
+					  <div class="file-field">					 
+						<a class="btn-floating mt-0 float-left waves-effect waves-light">
+						 <label class="label1" for="upload">						 
+						  <img id="output" src="../assets/images/user.png"><br>
+						  <small style="color:red";>*required</small>
+						 </label>
+							<input type="file" name="fup" id="upload" accept="image/*" required hidden><!--onchange="document.getElementById('output').src = window.URL.createObjectURL(this.files[0])">-->
+							<label class="label" for="upload">Add photo First!</label>		
+							<div id="uploaded_image"></div>
+						</a>    						
+					  </div>
+					</form>
+				</div>
+				<style>
+
+				#output:hover
+				{
+				transform: scale(1.02);
+				}
+				.label:hover
+				{
+				transform: scale(1.05);
+				}
+				</style>
+				</center>
+				<div id="uploadimageModal" class="modal" role="dialog">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">        		
+								<h4 class="modal-title">Upload & Crop Image</h4>
+								<button type="button" class="close" data-dismiss="modal">&times;</button>
+							</div>
+							<div class="modal-body">
+								<div class="row">
+									<div class="col-md-8 text-center">
+										  <div id="image_demo" style="width:350px; margin-top:30px"></div>
+									</div>
+									<div class="col-md-4" style="padding-top:30px;">
+										<br />
+										<br />
+										<br/>
+										  <button id="btnhide" class="btn btn-success crop_image">Crop & Upload Image</button>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+<script>  
+$(document).ready(function(){
+
+	$image_crop = $('#image_demo').croppie({
+    enableExif: true,
+    viewport: {
+      width:200,
+      height:200,
+      type:'circle' //circle
+    },
+    boundary:{
+      width:300,
+      height:300
+    }
+  });
+
+  $('#upload').on('change', function(){
+    var reader = new FileReader();
+    reader.onload = function (event) {
+      $image_crop.croppie('bind', {
+        url: event.target.result
+      }).then(function(){
+        console.log('jQuery bind complete');
+      });
+    }
+    reader.readAsDataURL(this.files[0]);
+    $('#uploadimageModal').modal('show');
+  });
+
+  $('.crop_image').click(function(event){
+    $image_crop.croppie('result', {
+      type: 'canvas',
+      size: 'viewport'
+    }).then(function(response){
+      $.ajax({
+        url:"upload.php",
+        type: "POST",
+        data:{"image": response},
+        success:function(data)
+        {		  
+          $('#uploadimageModal').modal('hide');
+          $('#uploaded_image').html(data);
+        }
+      });
+    })
+  });
+
+}); 
+/*user.png image and add photo button hide*/
+$("#btnhide").click(function(){
+  $(".label1 , .label").hide();
+});
+</script>
+
+			<!--Card content-->
+			<div class="card-body px-lg-5 pt-0">
+
+				
+
+					<div class="form-row">
+						<div class="col">
+							<!-- First name -->
+							<div class="md-form">
+								<input type="text" id="materialRegisterFormFirstName" class="form-control" name="fname" required>
+								<label for="materialRegisterFormFirstName">First name</label>
+							</div>
+						</div>
+						<div class="col">
+							<!-- Last name -->
+							<div class="md-form">
+								<input type="text" id="materialRegisterFormLastName" class="form-control" name="lname" required>
+								<label for="materialRegisterFormLastName">Last name</label>
+							</div>
+						</div>
+					</div>
+
+					<!-- E-mail -->
+					<div class="md-form mt-0">
+						<input type="email" id="materialRegisterFormEmail" class="form-control" name="email" required>
+						<label for="materialRegisterFormEmail">E-mail</label>
+					</div>
+					
+					<!-- Phone number -->
+					<div class="md-form">
+						<input type="number" name="mobile" id="materialRegisterFormPhone" class="form-control" aria-describedby="materialRegisterFormPhoneHelpBlock">
+						<label for="materialRegisterFormPhone">Phone number</label>
+					</div>
+					
+					<!-- Password -->
+					<div class="md-form">
+						<input type="password" name="password" id="materialRegisterFormPassword" class="form-control" aria-describedby="materialRegisterFormPasswordHelpBlock" required>
+						<label for="materialRegisterFormPassword">Password</label>
+						<small id="materialRegisterFormPasswordHelpBlock" class="form-text text-muted mb-4">
+							Enter a strong password
+						</small>
+					</div>
+					
+					<!--<div class="md-form">
+						<input type="password" name="conform_password" id="materialRegisterFormPassword2" class="form-control" aria-describedby="materialRegisterFormPasswordHelpBlock" required>
+						<label for="materialRegisterFormPassword2">Comform Password</label>
+						<small id="materialRegisterFormPasswordHelpBlock" class="form-text text-muted mb-4">
+							ReEnter your passwword
+						</small>
+					</div>-->
+
+					
+
+					<!-- Newsletter -->
+					<div class="form-check">
+						<input type="checkbox" class="form-check-input" id="materialRegisterFormNewsletter">
+						<label class="form-check-label" for="materialRegisterFormNewsletter">By signing up, I agree to have read and accepted the terms of use, cookie and privacy policy of widasa.com.</label>
+					</div>
+
+					<!-- Sign up button -->
+					<button name="submit" class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit">Sign in</button>
+
+					
+			
+			 
+
+			</div>
+
+		</div>
+	</div>
+<div class="col-md-2"></div>
+</div>
+</div>
+</form>
+
+<div class="jumbotron text-center" style="margin-bottom:0; margin-top:0;">
+	<span class="d-none d-sm-inline alreadytxt">
+	Any suggestions? We are always looking for improvements,
+	please don't hesitate to give us feedback about the login pages
+	</span>
+	<a href="../AboutUs/contact.php" style="color:#37a000"><u>FEEDBACK</u></a></h2>
+</div>
+			<!--footer-->
+
+<div class="footer-bottom">
+		 Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved 
+	</div>
+
+<style>
+				/*login form*/
+				
+.login_logo
+{
+	width:35%;
+	height:auto;
+}
+.marginlogin
+{
+	margin-top:5;
+	padding:15;
+}
+.alreadytxt
+{
+	color:#656565;
+}
+.footer-bottom{
+	width: 100%;
+	padding: 20px 0;
+	text-align: center;
+	color: #fff;
+	background: rgb(97, 97, 97);
+}
+			/*image upload*/
+.label{
+  display: inline-block;
+  background-color: #33B5E5;
+  color: white;
+  padding: 0.5rem;
+  font-family: sans-serif;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+.label1
+{
+  cursor: pointer;
+  margin-top: 1rem;
+  margin-bottom: -10;
+}
+</style>
+ 
+</body>
+</html>
+   
+
+
+
+
+
+
